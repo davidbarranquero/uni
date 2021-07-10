@@ -1,0 +1,406 @@
+/*CSCI235 Final Project */;
+
+> /* (1) Use a method createCollection() to create a collection of documents games and use JSON schema validator to enforce the constraints on the collection derived from the types of columns in the relational tables */;
+  
+> db.createCollection("games", { "validator":{$jsonSchema:
+... {"anyOf": [ {"bsonType":"object",
+...              "properties":{"_id":{"bsonType":"string"},
+...                            "TEAM":{"bsonType":"object",
+...                                    "properties":{"name":{"bsonType": "string"},
+...                                                  "city":{"bsonType": "string"},
+...                                                  "street":{"bsonType": "string"},
+...                                                  "home ground venue":{"bsonType": "string"},
+...                                                  "players":{"bsonType": "array",
+...                                                             "items": {"bsonType": "object",
+...                                                             "properties": {"PLAYER":{"bsonType":"object",
+...                                                                                      "properties":{"full name":{"bsonType": "string"},
+...                                                                                                    "date of birth": {"bsonType": "date"},
+...                                                                                                    "positions played": {"bsonType":"array",
+...                                                                                                                         "items":{"bsonType":"string"},
+...                                                                                                                         "uniqueItems":true },
+...                                                                                                    "Ref GAME":{"bsonType":"array",
+...                                                                                                                "items":{"bsonType":"string"},
+...                                                                                                                "uniqueItems":true }
+...                                                                                                    },
+...                                                                               "required":["full name", "date of birth", "positions played", "Ref GAME"],
+...                                                                               "additionalProperties":false 
+...                                                                                      }
+...                                                                            },
+...                                                             "required":["PLAYER"],
+...                                                             "additionalProperties":false
+...                                                             }
+...                                                  }
+...                                               },
+...                                    "required":["name", "city", "street", "home ground venue", "players"],
+...                                    "additionalProperties":false
+...                                    }
+...                          },
+...              "required":["_id","TEAM"],
+...              "additionalProperties":false
+...              },
+... 
+...             {"bsonType":"object",
+...              "properties":{"_id":{"bsonType":"string"},
+...                            "GAME":{"bsonType":"object",
+...                                    "properties":{"datetime":{"bsonType": "date"},
+...                                                  "home team": {"bsonType": "string"},
+...                                                  "away team": {"bsonType": "string"},
+...                                                  "results in": {"bsonType":"object",
+...                                                                 "properties":{"SCORE":{"bsonType":"object",
+...                                                                                        "properties":{"home team score":{"bsonType": "int"},
+...                                                                                                      "away team score":{"bsonType": "int"}
+...                                                                                                      },
+...                                                                                        "required":["home team score", "away team score"],
+...                                                                                        "additionalProperties":false
+...                                                                                        }
+...                                                                               },
+...                                                                 "required":["SCORE"],
+...                                                                 "additionalProperties":false
+...                                                                 },
+...                                                  "Ref REFEREE": {"bsonType": "string"}
+...                                                  },
+...                                    "required":["datetime", "home team", "away team", "results in", "Ref REFEREE"],
+...                                    "additionalProperties":false
+...                                    }
+...                            },
+...              "required":["_id","GAME"],
+...              "additionalProperties":false
+...              },
+... 
+...             {"bsonType":"object",
+...              "properties":{"_id":{"bsonType":"string"},
+...                            "REFEREE":{"bsonType":"object",
+...                                       "properties":{"referee first name":{"bsonType": "string"},
+
+...                                                     "referee last name":{"bsonType": "string"},
+...                                                     "referee city":{"bsonType": "string"}
+...                                                     },
+...                                       "required":["referee first name", "referee last name", "referee city"],
+...                                       "additionalProperties":false
+...                                       }
+...                            },
+...               "required":["_id", "REFEREE"],
+...               "additionalProperties":false
+...               }
+...             ]
+... } } } );
+{ "ok" : 1 }
+> 
+> /* We choose to make REFEREE its own separate document and eliminate all redundancies, rather than nest REFEREE inside GAME and increase nesting, but create a redundancy of referee city being repeated for the same referee. In short, we design our collection as max nesting, given 0 reduncancies */;
+
+> 
+> /* (2) Next, insert into a collection games the same information as in Task 1 (Insert in to the database information about at least three cities, three teams, three games played, and two referees). */;
+> 
+> 
+> 
+> db.games.insert({"_id": "DB-T1",
+...                  "TEAM": {"name": "Dragons",
+...                           "city": "Wollongong",
+...                           "street":"Harbour St",
+...                           "home ground venue": "WIN Stadium",
+...                           "players": [{"PLAYER": {"full name": "David Barr",
+...                                                   "date of birth": new Date("1996-05-25"),
+...                                                   "positions played": ["wing", "middle"],
+...                                                   "Ref GAME": ["DB-G1", "DB-G3", "DB-G5", "DB-G8", "DB-G9", "DB-G11"]
+...                                                   }
+...                                        },
+...                                        {"PLAYER": {"full name": "Ben Shrader",
+...                                                    "date of birth": new Date("1996-05-25"),
+...                                                    "positions played": ["full-back"],
+...                                                    "Ref GAME": ["DB-G1", "DB-G3", "DB-G5", "DB-G8", "DB-G9", "DB-G11"]
+...                                                    }
+...                                        }]
+...                  }
+...         });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-T2",
+...                  "TEAM": {"name": "Eels",
+...                           "city": "Parramatta",
+...                           "street":"OConnell St",
+...                           "home ground venue": "Bankwest Stadium",
+...                           "players": [{"PLAYER": {"full name": "John Santos",
+...                                                   "date of birth": new Date("1966-09-19"),
+...                                                   "positions played": ["middle"],
+...                                                   "Ref GAME": ["DB-G1", "DB-G4", "DB-G6", "DB-G7", "DB-G10", "DB-G11"]
+...                                                   }
+...                                        },
+...                                        {"PLAYER": {"full name": "Chris Smart",
+...                                                    "date of birth": new Date("1984-09-22"),
+...                                                    "positions played": ["full-back", "middle"],
+...                                                    "Ref GAME": ["DB-G1", "DB-G4", "DB-G6", "DB-G7", "DB-G10", "DB-G11"]
+...                                                    }
+...                                        }]
+...                  }
+...         });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-T3",
+...                  "TEAM": {"name": "Panthers",
+...                           "city": "Penrith",
+...                           "street":"Mulgoa Rd",
+...                           "home ground venue": "BlueBet Stadium",
+...                           "players": [{"PLAYER": {"full name": "James Grant",
+...                                                   "date of birth": new Date("1996-10-20"),
+...                                                   "positions played": ["prop-forward"],
+...                                                   "Ref GAME": ["DB-G2", "DB-G4", "DB-G5", "DB-G8", "DB-G10", "DB-G12"]
+...                                                   }
+...                                        },
+...                                        {"PLAYER": {"full name": "Ben Walker",
+...                                                    "date of birth": new Date("1972-07-12"),
+...                                                    "positions played": ["middle"],
+...                                                    "Ref GAME": ["DB-G2", "DB-G4", "DB-G5", "DB-G8", "DB-G10", "DB-G12"]
+...                                                    }
+...                                        }]
+...                  }
+...         });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-T4",
+...                  "TEAM": {"name": "Roosters",
+...                           "city": "Sydney",
+...                           "street":"Driver Ave",
+...                           "home ground venue": "SCG",
+...                           "players": [{"PLAYER": {"full name": "Craig Fitz",
+...                                                   "date of birth": new Date("1992-03-19"),
+...                                                   "positions played": ["full-back"],
+...                                                   "Ref GAME": ["DB-G2", "DB-G3", "DB-G6", "DB-G7", "DB-G9", "DB-G12"]
+...                                                   }
+...                                        },
+...                                        {"PLAYER": {"full name": "Sam Bull",
+...                                                    "date of birth": new Date("1994-09-09"),
+...                                                    "positions played": ["prop-forward", "middle", "full-back"],
+...                                                    "Ref GAME": ["DB-G2", "DB-G3", "DB-G6", "DB-G7", "DB-G9", "DB-G12"]
+...                                                    }
+...                                        }]
+...                  }
+...         });
+WriteResult({ "nInserted" : 1 })
+> 
+> 
+> 
+> db.games.insert({"_id": "DB-G1",
+...                  "GAME": {"datetime": new Date("12-MAR-2021:10:00:00"),
+...                           "home team": "Dragons",
+...                           "away team": "Eels",
+...                           "results in": {"SCORE": {"home team score": NumberInt(24),
+...                                                    "away team score": NumberInt(20)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R1"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G2",
+...                  "GAME": {"datetime": new Date("14-MAR-2021:10:45:00"),
+...                           "home team": "Panthers",
+...                           "away team": "Roosters",
+...                           "results in": {"SCORE": {"home team score": NumberInt(22),
+...                                                    "away team score": NumberInt(22)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R3"
+...                           }
+...   });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G3",
+...                  "GAME": {"datetime": new Date("22-MAR-2021:10:15:00"),
+...                           "home team": "Roosters",
+...                           "away team": "Dragons",
+...                           "results in": {"SCORE": {"home team score": NumberInt(18),
+...                                                    "away team score": NumberInt(18)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R5"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G4",
+...                  "GAME": {"datetime": new Date("25-MAR-2021:08:45:00"),
+...                           "home team": "Eels",
+...                           "away team": "Panthers",
+...                           "results in": {"SCORE": {"home team score": NumberInt(26),
+...                                                    "away team score": NumberInt(18)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R5"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G5",
+...                  "GAME": {"datetime": new Date("29-MAR-2021:08:00:00"),
+...                           "home team": "Dragons",
+...                           "away team": "Panthers",
+...                           "results in": {"SCORE": {"home team score": NumberInt(24),
+...                                                    "away team score": NumberInt(20)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R3"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G6",
+...                  "GAME": {"datetime": new Date("03-APR-2021:10:45:00"),
+...                           "home team": "Eels",
+...                           "away team": "Roosters",
+...                           "results in": {"SCORE": {"home team score": NumberInt(20),
+...                                                    "away team score": NumberInt(18)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R1"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G7",
+...                  "GAME": {"datetime": new Date("08-APR-2021:12:00:00"),
+...                           "home team": "Roosters",
+...                           "away team": "Eels",
+...                           "results in": {"SCORE": {"home team score": NumberInt(27),
+...                                                    "away team score": NumberInt(15)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE":"DB-R4"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G8",
+...                  "GAME": {"datetime": new Date("12-APR-2021:09:15:00"),
+...                           "home team": "Panthers",
+...                           "away team": "Dragons",
+...                           "results in": {"SCORE": {"home team score": NumberInt(21),
+...                                                    "away team score": NumberInt(23)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE":"DB-R4"
+...                           }
+...                   });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G9",
+...                  "GAME": {"datetime": new Date("18-APR-2021:09:30:00"),
+...                           "home team": "Dragons",
+...                           "away team": "Roosters",
+...                           "results in": {"SCORE": {"home team score": NumberInt(12),
+...                                                    "away team score": NumberInt(23)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE":"DB-R3"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G10",
+...                  "GAME": {"datetime": new Date("19-APR-2021:11:00:00"),
+...                           "home team": "Panthers",
+...                           "away team": "Eels",
+...                           "results in": {"SCORE": {"home team score": NumberInt(25),
+...                                                    "away team score": NumberInt(10)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R4"
+...                           }
+...                 });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G11",
+...                  "GAME": {"datetime": new Date("03-MAR-2021:11:45:00"),
+...                           "home team": "Eels",
+...                           "away team": "Dragons",
+...                           "results in": {"SCORE": {"home team score": NumberInt(12),
+...                                                    "away team score": NumberInt(8)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R2"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-G12",
+...                  "GAME": {"datetime": new Date("08-MAY-2021:10:45:00"),
+...                           "home team": "Roosters",
+...                           "away team": "Panthers",
+...                           "results in": {"SCORE": {"home team score": NumberInt(8),
+...                                                    "away team score": NumberInt(23)
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R2"
+...                           }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-R1",
+...                  "REFEREE": {"referee first name": "John",
+...                              "referee last name": "Smith",
+...                              "referee city": "Wollongong"
+...                              }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-R2",
+...                  "REFEREE": {"referee first name": "Peter",
+...                              "referee last name": "Jones",
+...                              "referee city": "Sydney"
+...                              }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> 
+> 
+> db.games.insert({"_id": "DB-R3",
+...                  "REFEREE": {"referee first name": "John",
+...                              "referee last name": "Dunn",
+...                              "referee city": "Wollongong"
+...                              }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> 
+> 
+> db.games.insert({"_id": "DB-R4",
+...                  "REFEREE": {"referee first name": "Mike",
+...                              "referee last name": "Barker",
+...                              "referee city": "Parramatta"
+...                              }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> db.games.insert({"_id": "DB-R5",
+...                  "REFEREE": {"referee first name": "Adam",
+...                              "referee last name": "Connor",
+...                              "referee city": "Canberra"
+...                              }
+...                  });
+WriteResult({ "nInserted" : 1 })
+> 
+> /* (3) Finally, insert a document that fails a validation of only one of the constraints listed above. Add a comment explaining why a document failed a validation. */;
+> 
+> db.games.insert({"_id": "DB-G13",
+...                  "GAME": {"datetime": new Date("08-AUG-2021:10:45:00"),
+...                           "home team": "Dragons",
+...                           "away team": "Panthers",
+...                           "results in": {"SCORE": {"home team score": "16",
+...                                                    "away team score": "12"
+...                                                    }
+...                                          },
+...                           "Ref REFEREE": "DB-R1"
+...                           }
+...                  });
+WriteResult({
+	"nInserted" : 0,
+	"writeError" : {
+		"code" : 121,
+		"errmsg" : "Document failed validation"
+	}
+})
+> 
+>  /* The insert statement fails validation as the bsonType of SCORE."home team score" is string, whereas the validator requires it to be bsonType int."*/;
+> 
+> 
+
